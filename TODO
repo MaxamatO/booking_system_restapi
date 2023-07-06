@@ -1,7 +1,4 @@
 ADD:
-    delete hotel
-    delete room
-    find room by id
     get users
     log in 
     register
