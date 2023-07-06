@@ -1,0 +1,10 @@
+ADD:
+    delete hotel
+    delete room
+    find room by id
+    get users
+    log in 
+    register
+    authenticate with token
+    create booking endpoints
+    test the hell out of this app - probably buggy :D
