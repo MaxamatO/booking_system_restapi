@@ -9,4 +9,12 @@ const bookingSchema = mongoose.Schema({
   isPaid: { type: Boolean, default: false },
 });
 
+/**
+ * @param {import("mongoose").ObjectId} roomId
+ * @param {import("mongoose").ObjectId} userId
+ * @param {Date} startDate
+ * @param {Date} endDate
+ * @param {Boolean} isPaid
+ *
+ */
 module.exports = mongoose.model("Booking", bookingSchema);
