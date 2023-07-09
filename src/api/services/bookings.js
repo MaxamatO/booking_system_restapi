@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 const Booking = require("../models/booking");
+const User = require("../models/user");
 const errorHandler = require("../utils/error-handler");
+const {
+  is_room_booked,
+  are_dates_valid,
+} = require("../utils/booking-validator");
 
 /**
  *  Getting Bookings
@@ -26,7 +31,9 @@ module.exports.bookings_get_all = (req, res, next) => {
         }),
       });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
 
 /**
@@ -35,11 +42,15 @@ module.exports.bookings_get_all = (req, res, next) => {
  * @param {Response} res
  * @param {Function} next
  */
-module.exports.bookings_book_room = (req, res, next) => {
+module.exports.bookings_book_room = async (req, res, next) => {
+  const doesUserExist = !!(await User.findById(req.body.userId));
+  if (!doesUserExist) return errorHandler(res, 500, "User does not exist.");
   const userId = req.body.userId;
   const roomId = req.params.roomId;
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;
+  if (!are_dates_valid(startDate, endDate))
+    return errorHandler(res, 500, "Dates are invalid.");
   const booked = new Booking({
     _id: new mongoose.Types.ObjectId(),
     roomId: roomId,
@@ -48,6 +59,8 @@ module.exports.bookings_book_room = (req, res, next) => {
     endDate: endDate,
     isPaid: false,
   });
+  if (await is_room_booked(Booking, roomId))
+    return errorHandler(res, 500, "Room is already booked.");
   booked.startDate instanceof Date;
   booked.endDate instanceof Date;
   booked
@@ -63,5 +76,7 @@ module.exports.bookings_book_room = (req, res, next) => {
         },
       });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
