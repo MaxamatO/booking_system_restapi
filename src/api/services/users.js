@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
+const Booking = require("../models/booking");
 const bcrypt = require("bcrypt");
 const errorHandler = require("../utils/error-handler");
 
@@ -19,6 +20,11 @@ module.exports.users_get_all = (req, res, next) => {
           return {
             _id: user._id,
             email: user.email,
+            request: {
+              type: "GET",
+              url: `http://localhost:3000/users/${user._id}`,
+              desc: "Obtain more information about bookings and account.",
+            },
           };
         }),
       });
@@ -49,6 +55,42 @@ module.exports.users_register = async (req, res, next) => {
         details: {
           _id: result._id,
           email: result.email,
+        },
+      });
+    })
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
+};
+
+/**
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+module.exports.users_get_by_id = async (req, res, next) => {
+  const userId = req.params.userId;
+  const bookings = await Booking.find({ userId: userId }).exec();
+  User.findById(userId)
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        _id: result._id,
+        email: result.email,
+        password: result.password,
+        bookings: {
+          count: bookings.length,
+          roomsBooked: bookings.map((book) => {
+            return {
+              roomId: book.roomId,
+              request: {
+                type: "GET",
+                url: `http://localhost:3000/bookings/${book._id}`,
+                desc: "Obtain information about this booking.",
+              },
+            };
+          }),
         },
       });
     })
