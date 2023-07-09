@@ -80,3 +80,33 @@ module.exports.bookings_book_room = async (req, res, next) => {
       return errorHandler(res, 500, err);
     });
 };
+
+/**
+ *  Get Booking
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+module.exports.bookings_get_by_id = (req, res, next) => {
+  const bookingId = req.params.bookingId;
+  Booking.findById(bookingId)
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        _id: result._id,
+        roomId: result.roomId,
+        userId: result.userId,
+        startDate: result.startDate,
+        endDate: result.endDate,
+        isPaid: result.isPaid,
+        request: {
+          type: "GET",
+          url: `http://localhost:3000/rooms/${result.roomId}`,
+          desc: "Obtain more infromation about this room.",
+        },
+      });
+    })
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
+};
