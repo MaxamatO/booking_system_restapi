@@ -10,6 +10,7 @@ mongoose.connect(process.env.DATABASE_URI);
 const hotelsRoutes = require("./api/controllers/hotels");
 const bookingsRoutes = require("./api/controllers/bookings");
 const roomsRoutes = require("./api/controllers/rooms");
+const usersRoutes = require("./api/controllers/users");
 
 app.use(morgan("dev"));
 app.use(
@@ -22,6 +23,7 @@ app.use(bodyParser.json());
 app.use("/hotels", hotelsRoutes);
 app.use("/rooms", roomsRoutes);
 app.use("/bookings", bookingsRoutes);
+app.use("/users", usersRoutes);
 
 app.use((req, res, next) => {
   const error = new Error("Not found");
