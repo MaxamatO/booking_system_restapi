@@ -6,7 +6,7 @@
  */
 const handler = (res, code, error) => {
   console.log(error);
-  res.status(code).json({
+  return res.status(code).json({
     error: error,
   });
 };

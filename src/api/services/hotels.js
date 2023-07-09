@@ -31,7 +31,9 @@ module.exports.hotels_find_all = (req, res, next) => {
         }),
       });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
 
 /**
@@ -67,9 +69,13 @@ module.exports.hotels_create_hotel = (req, res, next) => {
             },
           });
         })
-        .catch((err) => errorHandler(res, 500, err));
+        .catch((err) => {
+          return errorHandler(res, 500, err);
+        });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
 
 /**
@@ -106,7 +112,9 @@ module.exports.hotels_find_by_id = (req, res, next) => {
         },
       });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
 
 /**
@@ -131,7 +139,11 @@ module.exports.hotels_delete_hotel = (req, res, next) => {
             },
           });
         })
-        .catch((err) => errorHandler(res, 500, err));
+        .catch((err) => {
+          return errorHandler(res, 500, err);
+        });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };

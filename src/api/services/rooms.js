@@ -40,7 +40,9 @@ module.exports.rooms_find_all = (req, res, next) => {
         }),
       });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
 
 /**
@@ -76,9 +78,13 @@ module.exports.rooms_create_room = (req, res, next) => {
             },
           });
         })
-        .catch((err) => errorHandler(res, 500, err));
+        .catch((err) => {
+          return errorHandler(res, 500, err);
+        });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
 
 /**
@@ -104,9 +110,13 @@ module.exports.rooms_delete_room = (req, res, next) => {
             },
           });
         })
-        .catch((err) => errorHandler(res, 500, err));
+        .catch((err) => {
+          return errorHandler(res, 500, err);
+        });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
 /**
  *  Get Room By Id
@@ -133,5 +143,7 @@ module.exports.rooms_find_by_id = (req, res, next) => {
         },
       });
     })
-    .catch((err) => errorHandler(res, 500, err));
+    .catch((err) => {
+      return errorHandler(res, 500, err);
+    });
 };
