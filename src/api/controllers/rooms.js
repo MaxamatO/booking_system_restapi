@@ -7,10 +7,12 @@ const {
   rooms_find_by_id,
 } = require("../services/rooms");
 const { bookings_book_room } = require("../services/bookings");
+const { checkAuth } = require("../auth/check-auth");
+
 router.get("/", rooms_find_all);
-router.post("/", rooms_create_room);
+router.post("/", checkAuth, rooms_create_room);
 router.get("/:roomId", rooms_find_by_id);
-router.delete("/:roomId", rooms_delete_room);
-router.post("/:roomId/book", bookings_book_room);
+router.delete("/:roomId", checkAuth, rooms_delete_room);
+router.post("/:roomId/book", checkAuth, bookings_book_room);
 
 module.exports = router;
