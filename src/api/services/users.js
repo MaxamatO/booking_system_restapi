@@ -3,6 +3,12 @@ const User = require("../models/user");
 const Booking = require("../models/booking");
 const bcrypt = require("bcrypt");
 const errorHandler = require("../utils/error-handler");
+const {
+  does_user_exist,
+  is_email_valid,
+  is_password_correct,
+} = require("../utils/credentials-validator");
+const jwt = require("jsonwebtoken");
 
 /**
  *
@@ -47,6 +53,10 @@ module.exports.users_register = async (req, res, next) => {
     email: req.body.email,
     password: hashed,
   });
+  if (!is_email_valid(user.email))
+    return errorHandler(res, 500, "Invalid email.");
+  if (does_user_exist(User, user.email))
+    return errorHandler(res, 500, "User with this email already exists.");
   user
     .save()
     .then((result) => {
@@ -97,4 +107,31 @@ module.exports.users_get_by_id = async (req, res, next) => {
     .catch((err) => {
       return errorHandler(res, 500, err);
     });
+};
+
+/**
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+module.exports.users_login = async (req, res, next) => {
+  const user = await User.find({ email: req.body.email }).exec();
+  if (!user) return errorHandler(res, 500, "Invalid credentials.");
+  if (!(await is_password_correct(user[0].password, req.body.password)))
+    return errorHandler(res, 500, "Invalid credentials.");
+  const token = jwt.sign(
+    {
+      email: user.email,
+      userId: user._id,
+    },
+    process.env.JWT_KEY,
+    {
+      expiresIn: "1h",
+    }
+  );
+  res.status(200).json({
+    message: "Auth successful",
+    token: token,
+  });
 };
