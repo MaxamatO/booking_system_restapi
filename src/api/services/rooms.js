@@ -3,6 +3,7 @@ const errorHandler = require("../utils/error-handler");
 const mongoose = require("mongoose");
 const Hotel = require("../models/hotel");
 const Room = require("../models/room");
+const Booking = require("../models/booking");
 
 /**
  *  Getting Rooms
@@ -94,29 +95,36 @@ module.exports.rooms_create_room = (req, res, next) => {
  * @param {Function} next
  */
 module.exports.rooms_delete_room = (req, res, next) => {
-  Room.findByIdAndDelete(req.params.roomId)
+  Booking.deleteMany({ roomId: req.params.roomId })
     .exec()
-    .then((result) => {
-      console.log(result);
-      Hotel.findByIdAndUpdate(result.hotelId, { $inc: { numberOfRooms: -1 } })
+    .then((count) => {
+      Room.findByIdAndDelete(req.params.roomId)
         .exec()
-        .then((doc) => {
-          res.status(200).json({
-            message: "Hotel room deleted successfully.",
-            request: {
-              type: "GET",
-              url: `http://localhost:3000/hotels/${doc._id}`,
-              desc: "Obtain more information about its hotel.",
-            },
-          });
+        .then((result) => {
+          console.log(result);
+          Hotel.findByIdAndUpdate(result.hotelId, {
+            $inc: { numberOfRooms: -1 },
+          })
+            .exec()
+            .then((doc) => {
+              res.status(200).json({
+                message: "Hotel room deleted successfully.",
+                request: {
+                  type: "GET",
+                  url: `http://localhost:3000/hotels/${doc._id}`,
+                  desc: "Obtain more information about its hotel.",
+                },
+              });
+            })
+            .catch((err) => {
+              return errorHandler(res, 500, err);
+            });
         })
         .catch((err) => {
           return errorHandler(res, 500, err);
         });
     })
-    .catch((err) => {
-      return errorHandler(res, 500, err);
-    });
+    .catch((err) => errorHandler(res, 500, err));
 };
 /**
  *  Get Room By Id
@@ -146,4 +154,47 @@ module.exports.rooms_find_by_id = (req, res, next) => {
     .catch((err) => {
       return errorHandler(res, 500, err);
     });
+};
+
+/**
+ *  Get Room By Id
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+module.exports.rooms_find_by_id_with_bookings = async (req, res, next) => {
+  const bookings = await Booking.find({ roomId: req.params.roomId }).exec();
+  Room.findById(req.params.roomId)
+    .exec()
+    .then((room) => {
+      if (!room) return errorHandler(res, 500, "Room does not exist");
+      res.status(200).json({
+        _id: room._id,
+        hotelId: room.hotelId,
+        name: room.name,
+        isFree: room.isFree,
+        price: room.price,
+        description: room.description,
+        count: bookings.length,
+        bookings: {
+          count: bookings.length,
+          details: bookings.map((booking) => {
+            return {
+              _id: booking._id,
+              request: {
+                type: "GET",
+                url: `http://localhost:3000/bookings/${booking._id}`,
+                desc: "Obtain more information about booking.",
+              },
+            };
+          }),
+        },
+        request: {
+          type: "GET",
+          url: `http://localhost:3000/hotels/${room.hotelId}`,
+          desc: "Obtain more information about this hotel.",
+        },
+      });
+    })
+    .catch((err) => errorHandler(res, 500, err));
 };
