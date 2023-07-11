@@ -110,3 +110,20 @@ module.exports.bookings_get_by_id = (req, res, next) => {
       return errorHandler(res, 500, err);
     });
 };
+
+/**
+ *  Delete Booking
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+module.exports.bookings_delete_booking = (req, res, next) => {
+  Booking.findByIdAndDelete(req.params.bookingId)
+    .exec()
+    .then(() => {
+      res.status(200).json({
+        message: "Deleted succesfully.",
+      });
+    })
+    .catch((err) => errorHandler(res, 500, err));
+};
