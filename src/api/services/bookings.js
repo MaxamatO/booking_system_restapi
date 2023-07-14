@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Booking = require("../models/booking");
 const User = require("../models/user");
+const Room = require("../models/room");
 const errorHandler = require("../utils/error-handler");
 const {
   is_room_booked,
@@ -61,11 +62,13 @@ module.exports.bookings_book_room = async (req, res, next) => {
   });
   if (await is_room_booked(Booking, roomId))
     return errorHandler(res, 500, "Room is already booked.");
+
   booked.startDate instanceof Date;
   booked.endDate instanceof Date;
   booked
     .save()
-    .then((result) => {
+    .then(async (result) => {
+      await Room.findByIdAndUpdate(roomId, { $set: { isFree: false } }).exec();
       res.status(201).json({
         message: "Hotel room has been booked successfully.",
         details: {
@@ -120,7 +123,10 @@ module.exports.bookings_get_by_id = (req, res, next) => {
 module.exports.bookings_delete_booking = (req, res, next) => {
   Booking.findByIdAndDelete(req.params.bookingId)
     .exec()
-    .then(() => {
+    .then(async (booking) => {
+      await Room.findByIdAndUpdate(booking.roomId, {
+        $set: { isFree: true },
+      }).exec();
       res.status(200).json({
         message: "Deleted succesfully.",
       });

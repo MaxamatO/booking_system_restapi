@@ -15,6 +15,5 @@ module.exports.are_dates_valid = (startDate, endDate) => {
  */
 module.exports.is_room_booked = async (booking, roomId) => {
   const isRoomBooked = await booking.find({ roomId: roomId }).exec();
-  console.log(isRoomBooked.length);
   return isRoomBooked.length >= 1;
 };
